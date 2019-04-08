@@ -1,8 +1,10 @@
 package com.immenselyhappy.eyetracker;
 
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.TextView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,10 +21,40 @@ public class MainActivity extends AppCompatActivity {
     static {
         //System.loadLibrary("detection_based_tracker");
     }
+    private void startFdActivity() {
+        android.content.Intent intent = new android.content.Intent(
+                MainActivity.this, FdActivity.class);
+        startActivity(intent);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults){
+        switch(requestCode) {
+            case 1: {
+                if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startFdActivity();
+                } else {
+                    Log.i("MainActivity", "User did not grant permission!");
+                }
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (android.support.v4.content.ContextCompat.checkSelfPermission(
+                getApplicationContext(), android.Manifest.permission.CAMERA)
+                == android.content.pm.PackageManager.PERMISSION_DENIED) {
+            android.support.v4.app.ActivityCompat.requestPermissions(
+                    MainActivity.this,
+                    new String[] {android.Manifest.permission.CAMERA},
+                    1);
+        } else {
+            startFdActivity();
+        }
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
